@@ -3,18 +3,16 @@ using StarterAssets;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
-[RequireComponent(typeof(StarterAssetsInputs))]
 [RequireComponent(typeof(ChangelingManager))]
 
 //base controller with pre implemented needed references and helper functions related to ground checking
 public class BaseController : MonoBehaviour
 {
     // references
-    private CharacterController _controller;
+    [HideInInspector]
+    public CharacterController _controller;
     
     [Header("Base Controller")]
-    [SerializeField] private float GroundCheckDistance = 0.05f;
-    [SerializeField] private float k_JumpGroundingPreventionTime = 0.2f;
     [SerializeField] private LayerMask GroundCheckLayers;
     
     
@@ -22,97 +20,120 @@ public class BaseController : MonoBehaviour
     
     
     // private
-    private bool _grounded;
-    private Vector3 _groundNormal;
-    private float _LastTimeJumped;
+    [SerializeField]
+    public bool _grounded;
+    [HideInInspector]
+    public Vector3 _groundNormal;
+    [HideInInspector]
+    public Vector3 _lastImpactSpeed;
 
     //protected
-    protected Vector3 _velocity;
+    public Vector3 _velocity;
+    
+    Vector3 capsuleBottomBeforeMove;
+    Vector3 capsuleTopBeforeMove;
 
+    
     /// <summary>
     /// will be called by changeling manager
     /// </summary>
-    public virtual void OnJumpInput() {
-        
-    }
+    public virtual void OnJumpInput() { }
 
     /// <summary>
     /// will be called by ChanglingManager
     /// </summary>
     /// <param name="move"></param>
-    public virtual void OnMoveInput(Vector2 move) {
-        
-    }
+    public virtual void OnMoveInput(Vector2 move) { }
     
-    private void Start()
+    private void Awake()
     {
         _controller = GetComponent<CharacterController>();
     }
+    
 
-
-    private void Update() {
-        UpdateGrounded();
-    }
-
-    public void Jump()
-    { 
-        _velocity += Vector3.up * JumpForce; 
-        _LastTimeJumped = Time.time;
+    public void Jump() {
+        Vector3 vel = _velocity;
+        vel.y = 0;
+        _velocity = vel + Vector3.up * JumpForce;
     }
     
-    public bool UpdateGrounded()
+    public void UpdateGroundedState(float distance, out RaycastHit outHit)
     {
         // reset values before the ground check
         _grounded = false;
         _groundNormal = Vector3.up;
         
+        outHit = new RaycastHit();
         // only try to detect ground if it's been a short amount of time since last jump; otherwise we may snap to the ground instantly after we try jumping
-        if (Time.time >= _LastTimeJumped + k_JumpGroundingPreventionTime)
-        {
-                
-            // if we're grounded, collect info about the ground normal with a downward capsule cast representing our character capsule
-            if (Physics.CapsuleCast(GetCapsuleBottomHemisphere(), GetCapsuleTopHemisphere(), _controller.radius, Vector3.down,
-                    out RaycastHit hit, GroundCheckDistance, GroundCheckLayers, QueryTriggerInteraction.Ignore))
-            {
-                // storing the upward direction for the surface found
-                _groundNormal = hit.normal;
-            
-                // Only consider this a valid ground hit if the ground normal goes in the same direction as the character up
-                // and if the slope angle is lower than the character controller's limit
-                if (Vector3.Dot(hit.normal, transform.up) > 0f &&
-                    IsNormalUnderSlopeLimit(_groundNormal))
-                {
-                    _grounded = true;
-                    
-                    // handle snapping to the ground
-                    if (hit.distance > _controller.skinWidth)
-                    {
-                        _controller.Move(Vector3.down * hit.distance);
-                    }
+        // if (Time.time >= _LastTimeJumped + k_JumpGroundingPreventionTime) {
 
-                    return true;
-                }
+            
+        // if we're grounded, collect info about the ground normal with a downward capsule cast representing our character capsule
+        if (Physics.CapsuleCast(GetCapsuleBottomHemisphere(), GetCapsuleTopHemisphere(), _controller.radius, Vector3.down,
+                out RaycastHit hit, distance, GroundCheckLayers, QueryTriggerInteraction.Ignore))
+        {
+            // storing the upward direction for the surface found
+            _groundNormal = hit.normal;
+            
+            // Only consider this a valid ground hit if the ground normal goes in the same direction as the character up
+            // and if the slope angle is lower than the character controller's limit
+            if (Vector3.Dot(hit.normal, transform.up) > 0f &&
+                IsNormalUnderSlopeLimit(_groundNormal))
+            {
+                _grounded = true;
+                outHit = hit;
             }
         }
+        // }
 
-        return false;
+    }
+
+    public void SnapToGround(in RaycastHit hit) {
+        // handle snapping to the ground
+        if (hit.distance > _controller.skinWidth) {
+            _controller.Move(Vector3.down * hit.distance);
+        }
+    }
+
+    public void SaveTopBottomHemiSphereLocation() {
+        capsuleTopBeforeMove = GetCapsuleTopHemisphere();
+        capsuleBottomBeforeMove = GetCapsuleBottomHemisphere();
+    }
+
+    public void HandleCollision() {
+        // detect obstructions to adjust velocity accordingly
+        _lastImpactSpeed = Vector3.zero;
+        if (Physics.CapsuleCast(capsuleBottomBeforeMove, capsuleTopBeforeMove, _controller.radius,
+                _velocity.normalized, out RaycastHit hit, _velocity.magnitude * Time.deltaTime, -1,
+                QueryTriggerInteraction.Ignore)) {
+            // We remember the last impact speed because the fall damage logic might need it
+            _lastImpactSpeed = _velocity;
+        
+            _velocity = Vector3.ProjectOnPlane(_lastImpactSpeed, hit.normal);
+        }
     }
     
+    // Gets a reoriented direction that is tangent to a given slope
+    public Vector3 GetDirectionReorientedOnSlope(Vector3 direction, Vector3 slopeNormal)
+    {
+        Vector3 directionRight = Vector3.Cross(direction, transform.up);
+        return Vector3.Cross(slopeNormal, directionRight).normalized;
+    }
     // Returns true if the slope angle represented by the given normal is under the slope angle limit of the character controller
-    bool IsNormalUnderSlopeLimit(Vector3 normal)
+    protected bool IsNormalUnderSlopeLimit(Vector3 normal)
     {
         return Vector3.Angle(transform.up, normal) <= _controller.slopeLimit;
     }
         
     // Gets the center point of the bottom hemisphere of the character controller capsule    
-    Vector3 GetCapsuleBottomHemisphere()
+    protected Vector3 GetCapsuleBottomHemisphere()
     {
         return transform.position + _controller.center - transform.up * ( _controller.height/2f - _controller.radius);
         return transform.position + (transform.up * _controller.radius);
     }
             
     // Gets the center point of the top hemisphere of the character controller capsule    
-    Vector3 GetCapsuleTopHemisphere()
+    protected Vector3 GetCapsuleTopHemisphere()
     {
         return transform.position + _controller.center + transform.up * ( _controller.height/2f - _controller.radius);
         return transform.position + (transform.up * ( - _controller.radius));
