@@ -4,7 +4,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(StarterAssetsInputs))]
 [RequireComponent(typeof(CharacterController))]
-public class PersonController : MonoBehaviour
+public class WizardController : MonoBehaviour
 {
     private StarterAssetsInputs _input;
     private CharacterController _controller;
@@ -118,8 +118,6 @@ public class PersonController : MonoBehaviour
         
     }
 
-    
-    
     private void GroundedCheck()
     {
         
@@ -135,13 +133,11 @@ public class PersonController : MonoBehaviour
         // only try to detect ground if it's been a short amount of time since last jump; otherwise we may snap to the ground instantly after we try jumping
         if (Time.time >= _LastTimeJumped + k_JumpGroundingPreventionTime)
         {
-            Debug.Log("Checking");
             
             // if we're grounded, collect info about the ground normal with a downward capsule cast representing our character capsule
             if (Physics.CapsuleCast(GetCapsuleBottomHemisphere(), GetCapsuleTopHemisphere(), _controller.radius, Vector3.down,
                     out RaycastHit hit, GroundCheckDistance, GroundCheckLayers, QueryTriggerInteraction.Ignore))
             {
-                Debug.Log("We are trying");
                 // storing the upward direction for the surface found
                 _groundNormal = hit.normal;
         

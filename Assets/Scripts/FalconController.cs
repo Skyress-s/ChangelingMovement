@@ -4,12 +4,10 @@ using System.Collections.Generic;
 using StarterAssets;
 using UnityEngine;
 
-[RequireComponent(typeof(StarterAssetsInputs))]
 [RequireComponent(typeof(CharacterController))]
-public class FalconController : MonoBehaviour
+public class FalconController : BaseController
 {
     // references
-    private StarterAssetsInputs _input;
     private CharacterController _controller;
     [SerializeField] private GameObject _cameraTarget;
 
@@ -28,23 +26,22 @@ public class FalconController : MonoBehaviour
     private Vector3 _positionLast;
     private void Start()
     {
-        _input = GetComponent<StarterAssetsInputs>();
         _controller = GetComponent<CharacterController>();
+        
     }
 
 
-    private void Update()
-    { 
-        Movement();
-    }
-
-    void Movement()
-    {
+    public override void OnMoveInput(Vector2 move) {
+    
         speed += Vector3.Dot(_cameraTarget.transform.forward, GravityAcceleration * Vector3.up) * Time.deltaTime;
         
         _controller.Move(_cameraTarget.transform.forward * speed * Time.deltaTime);
         
 
         _positionLast = transform.position;
+    }
+
+    public override void OnJumpInput() {
+        
     }
 }

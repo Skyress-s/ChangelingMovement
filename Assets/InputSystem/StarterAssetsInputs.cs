@@ -11,6 +11,7 @@ namespace StarterAssets
         public Vector2 move;
         public Vector2 look;
         public bool jump;
+        private bool _jumpLast;
         public bool sprint;
 
         [Header("Movement Settings")]
@@ -37,6 +38,7 @@ namespace StarterAssets
         public void OnJump(InputValue value)
         {
             JumpInput(value.isPressed);
+            _jumpLast = true;
         }
 
         public void OnSprint(InputValue value)
@@ -49,7 +51,12 @@ namespace StarterAssets
         public void MoveInput(Vector2 newMoveDirection)
         {
             move = newMoveDirection;
-        } 
+        }
+
+        public void MoveInput(InputAction.CallbackContext callbackContext)
+        {
+            move = callbackContext.ReadValue<Vector2>();
+        }
 
         public void LookInput(Vector2 newLookDirection)
         {
@@ -77,8 +84,18 @@ namespace StarterAssets
         }
         void Update()
         {
-        	JumpInput(false);	
+            if (_jumpLast)
+            {
+                _jumpLast = false;
+            }
+            else
+            {
+                jump = false;
+            }
+            
         }
+        
+        
     }
 
 	
