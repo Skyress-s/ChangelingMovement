@@ -18,11 +18,16 @@ public class BaseController : MonoBehaviour
     [SerializeField] private LayerMask GroundCheckLayers;
     
     
+    public float JumpForce = 15f;
+    
+    
     // private
     private bool _grounded;
     private Vector3 _groundNormal;
     private float _LastTimeJumped;
 
+    //protected
+    protected Vector3 _velocity;
 
     /// <summary>
     /// will be called by changeling manager
@@ -45,13 +50,22 @@ public class BaseController : MonoBehaviour
     }
 
 
-    public bool GroundedCheck()
+    private void Update() {
+        UpdateGrounded();
+    }
+
+    public void Jump()
+    { 
+        _velocity += Vector3.up * JumpForce; 
+        _LastTimeJumped = Time.time;
+    }
+    
+    public bool UpdateGrounded()
     {
         // reset values before the ground check
         _grounded = false;
         _groundNormal = Vector3.up;
-            
-            
+        
         // only try to detect ground if it's been a short amount of time since last jump; otherwise we may snap to the ground instantly after we try jumping
         if (Time.time >= _LastTimeJumped + k_JumpGroundingPreventionTime)
         {
