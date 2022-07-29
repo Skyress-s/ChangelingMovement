@@ -6,12 +6,17 @@ using UnityEngine;
 [Serializable]
 public abstract class WizardBaseState {
     protected float _stateTime;
+    private bool dDebugState = false;
 
     public virtual void Enter(WizardController controller) {
     }
 
     public virtual void Update(WizardController c) {
         _stateTime += Time.deltaTime;
+        if (dDebugState) {
+            Debug.Log(this.GetType());
+        }
+        
     }
 
     public virtual void Exit(WizardController controller) {
@@ -32,21 +37,10 @@ public class WizardGrounded : WizardBaseState {
             return;
         }
         
-        
-        //movement
-        Vector3 worldSpaceMoveInput = c.transform.TransformVector(new Vector3(c.Move.x, 0, c.Move.y));
-        // calculate the desired velocity from inputs, max speed, and current slope
-        Vector3 targetVelocity = worldSpaceMoveInput * c.GroundMaxSpeed;
-        targetVelocity = c.GetDirectionReorientedOnSlope(targetVelocity.normalized, c._groundNormal) *
-                         targetVelocity.magnitude;
-        c._velocity = Vector3.Lerp(c._velocity, targetVelocity,
-            c.GroundMoveSharpness * Time.deltaTime);
-
-        
-        //really important order
         c.SaveTopBottomHemiSphereLocation();
-        c._controller.Move(c._velocity * Time.deltaTime);
+        c.GroundMovement.Move(c.Move, c);
         c.HandleCollision();
+        return;
     }
 
     public override void Exit(WizardController controller) {
@@ -62,8 +56,18 @@ public class WizardAir : WizardBaseState {
     public override void Update(WizardController c) {
         base.Update(c);
         c.UpdateGroundedState(c.AirCheckDistance, out RaycastHit hit);
-        
-        Vector3 worldSpaceMoveInput = c.transform.TransformVector(new Vector3(c.Move.x, 0, c.Move.y));
+        if (c._grounded && _stateTime > c.k_JumpGroundingPreventionTime) {
+            c.SnapToGround(hit);
+            c.ChangeState(c.wizardGrounded);
+            return;
+        }
+        c.SaveTopBottomHemiSphereLocation();
+        c.AirMovement.Move(c.Move, c);
+        c.HandleCollision();
+
+        return;
+         
+        /*Vector3 worldSpaceMoveInput = c.transform.TransformVector(new Vector3(c.Move.x, 0, c.Move.y));
         //Add air acceleration
         c._velocity += worldSpaceMoveInput * c.AirAcceleration * Time.deltaTime;
         
@@ -84,7 +88,7 @@ public class WizardAir : WizardBaseState {
 
         c.SaveTopBottomHemiSphereLocation();
         c._controller.Move(c._velocity * Time.deltaTime);
-        c.HandleCollision();
+        c.HandleCollision();*/
     }
 
     public override void Exit(WizardController controller) {

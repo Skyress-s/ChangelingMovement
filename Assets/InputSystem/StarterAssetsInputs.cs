@@ -45,6 +45,10 @@ namespace StarterAssets
         {
             SprintInput(value.isPressed);
         }
+
+        public void OnGameSpeed(InputValue value) {
+            Time.timeScale += value.Get<float>() * 0.1f;
+        }
 #endif
 
 

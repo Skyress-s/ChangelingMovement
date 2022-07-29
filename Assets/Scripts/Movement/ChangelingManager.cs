@@ -41,7 +41,10 @@ public class ChangelingManager : MonoBehaviour
     {
         EnterFalconState();
         GetComponent<CharacterController>().Move(Vector3.up * 25f);
+        _activeController._velocity += _activeController.transform.forward * 20f;
     }
+    
+    
     public void EnterWizardState()
     {
         _wizardController.enabled = true;

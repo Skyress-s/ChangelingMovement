@@ -1488,7 +1488,7 @@ PrefabInstance:
     - target: {fileID: 9005220659476430818, guid: 2d3a85ecde41a8246a79669975912b74,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.42
       objectReference: {fileID: 0}
     - target: {fileID: 9005220659476430818, guid: 2d3a85ecde41a8246a79669975912b74,
         type: 3}
@@ -1563,7 +1563,7 @@ PrefabInstance:
     - target: {fileID: 9018249871969862650, guid: 2d3a85ecde41a8246a79669975912b74,
         type: 3}
       propertyPath: m_ShowCameraFrustum
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2d3a85ecde41a8246a79669975912b74, type: 3}
@@ -1607,14 +1607,16 @@ MonoBehaviour:
   _groundNormal: {x: 0, y: 0, z: 0}
   _lastImpactSpeed: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
-  GroundMaxSpeed: 4
-  AirMaxSpeed: 10
-  GroundMoveSharpness: 15
-  AirAcceleration: 15
-  GravityAcceleration: -20
+  GroundMovement:
+    GroundMoveSharpness: 15
+    GroundMaxSpeed: 7
+  AirMovement:
+    AirMaxSpeed: 15
+    AirAcceleration: 2
+    GravityAcceleration: -9.81
   GroundCheckDistance: 0.05
   k_JumpGroundingPreventionTime: 0.2
-  AirCheckDistance: 0.1
+  AirCheckDistance: 0.5
   Move: {x: 0, y: 0}
 --- !u!114 &135756641613574981
 MonoBehaviour:
@@ -1792,7 +1794,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4416926083347132227}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.74, z: 0}
+  m_LocalPosition: {x: 0.42, y: 0.74, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1981,7 +1983,6 @@ MonoBehaviour:
   _lastImpactSpeed: {x: 0, y: 0, z: 0}
   _velocity: {x: 0, y: 0, z: 0}
   _cameraTarget: {fileID: 8338988565591873048}
-  StartHeight: 0
   GravityAcceleration: -20
   AirControl: 3
 --- !u!114 &5885216829670671799
@@ -2018,7 +2019,7 @@ PrefabInstance:
     - target: {fileID: 8762286023885395322, guid: 9c489a8547f4d9e4387da15a4ff82c81,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.42
       objectReference: {fileID: 0}
     - target: {fileID: 8762286023885395322, guid: 9c489a8547f4d9e4387da15a4ff82c81,
         type: 3}

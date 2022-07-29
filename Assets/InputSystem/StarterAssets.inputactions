@@ -49,6 +49,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "GameSpeed",
+                    "type": "Value",
+                    "id": "04696656-6d4d-4fc6-a7a4-6fff6dd57383",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -236,6 +245,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Debug",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "65c15d59-c4e3-4d52-becf-36c920dacf54",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "",
+                    "processors": "Scale(factor=-1)",
+                    "groups": "",
+                    "action": "GameSpeed",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7bd9061f-d708-46f2-bf50-11bed0a96970",
+                    "path": "<Keyboard>/upArrow",
+                    "interactions": "",
+                    "processors": "Scale",
+                    "groups": "",
+                    "action": "GameSpeed",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
