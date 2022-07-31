@@ -54,7 +54,6 @@ public class FalconController : BaseController
         
         Vector3 crossRight = Vector3.Cross(_velocity, Vector3.up).normalized;
         
-        
         //adding sterring
         // _velocity += crossRight * angle * Time.deltaTime;
         // _velocity = Vector3.RotateTowards(_velocity, _cameraTarget.transform.forward,  AirControl * Time.deltaTime, 0f);
