@@ -37,6 +37,11 @@ public class ChangelingManager : MonoBehaviour
             _activeController.OnJumpInput();
         }
     }
+
+    private void FixedUpdate() {
+        
+    }
+
     void OnDebug()
     {
         EnterFalconState();

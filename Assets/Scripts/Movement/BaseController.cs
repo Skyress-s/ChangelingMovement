@@ -33,6 +33,7 @@ public class BaseController : MonoBehaviour
     Vector3 capsuleBottomBeforeMove;
     Vector3 capsuleTopBeforeMove;
 
+    public bool bFixedUpdate = false;
     
     /// <summary>
     /// will be called by changeling manager
